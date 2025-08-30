@@ -1,5 +1,5 @@
 'use strict';
-// /*
+/*
 const Person = function (firstname, birthYear) {
   this.fname = firstname;
   this.year = birthYear;
@@ -91,7 +91,7 @@ bmw.brake();
 
 mercedes.accelerate();
 mercedes.brake();
-// */
+// 
 // instatnt
 ////////////////////////////////////////////////////////////
 // ES6 Classes
@@ -105,7 +105,7 @@ class PersonCl {
     this.birthYear = birthYear;
   }
 
-  // Methods will be added to .prototype property
+  // Methods will be added to .prototype property (Instances methods)
   calcAge() {
     console.log(2037 - this.birthYear);
   }
@@ -118,7 +118,7 @@ class PersonCl {
     return 2037 - this.birthYear;
   }
 
-  // Set a property that arlread exust
+  // Set a property that arlready exist
   set fullName(name) {
     if (name.includes(' ')) this._fullName = name;
     else console.log('not valid');
@@ -165,3 +165,86 @@ console.log(account.latest);
 
 account.latest = 50;
 console.log(account.movements);
+
+
+const PersonProto = {
+  calcAge() {
+    console.log(2037 - this.birthYear);
+  },
+
+  init(name, birthYear) {
+    this.name = name;
+    this.birthYear = birthYear;
+  },
+};
+
+const steven = Object.create(PersonProto);
+
+steven.name = 'Steven';
+steven.birthYear = 2002;
+console.log(steven);
+steven.calcAge();
+
+console.log(steven.__proto__ === PersonProto);
+
+const adoni = Object.create(PersonProto);
+adoni.init('Adoni', 2005);
+adoni.calcAge();
+
+/////////////////////
+// Challenge #2
+class CarCl {
+  constructor(carName, speed) {
+    this.carName = carName;
+    this.speed = speed;
+  }
+
+  accelerate() {
+    this.speed += 10;
+    console.log(`${this.carName} is going at ${this.speed}km/h`);
+  }
+
+  brake() {
+    this.speed -= 5;
+    console.log(`${this.carName} is going at ${this.speed}km/h`);
+  }
+
+  get speedUS() {
+    return this.speed / 1.6;
+  }
+
+  set speedUS(speed) {
+    this.speed = speed * 1.6;
+  }
+}
+const ford = new CarCl('ford', 120);
+console.log(ford);
+console.log(ford.speedUS);
+ford.accelerate();
+ford.brake();
+ford.speedUS = 50;
+console.log(ford);
+*/
+
+const Person = function (firstName, birthYear) {
+  this.firstName = firstName;
+  this.birthYear = birthYear;
+};
+
+Person.prototype.calcAge = function () {
+  console.log(2037 - this.birthYear);
+};
+
+const Student = function (firstName, birthYear, course) {
+  Person.call(this, firstName, birthYear);
+  this.course = course;
+};
+Student.prototype = Person.prototype;
+Student.prototype.introduce = function () {
+  console.log(`My name is ${this.firstName}`);
+};
+
+const mike = new Student('Mike', 2020, 'Computer Science');
+mike.introduce();
+mike.calcAge();
+console.log(mike);
