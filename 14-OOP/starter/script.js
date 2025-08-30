@@ -236,15 +236,71 @@ Person.prototype.calcAge = function () {
 };
 
 const Student = function (firstName, birthYear, course) {
+  // Person(firstName, birthYear) : this is simply a regular function call and the this keyword is set to undefined so that's why we get an error
+  // but this solves the problem
   Person.call(this, firstName, birthYear);
   this.course = course;
 };
-Student.prototype = Person.prototype;
+// Student.prototype = Person.prototype;
+// Linking prototypes
+Student.prototype = Object.create(Person.prototype);
+// Object.create will return empty object so we need this before adding any methods for student
 Student.prototype.introduce = function () {
   console.log(`My name is ${this.firstName}`);
 };
 
 const mike = new Student('Mike', 2020, 'Computer Science');
 mike.introduce();
+console.log(mike.course);
 mike.calcAge();
 console.log(mike);
+
+console.dir(Student.prototype.constructor); // Person and this is because we link the prototypes but it is actually Student who construct this so we can do this
+Student.prototype.constructor = Student; // then
+console.dir(Student.prototype.constructor); // Now its Student
+// mike prototype chain can access this
+console.log(mike instanceof Object);
+console.log(mike instanceof Student);
+console.log(mike instanceof Person);
+console.clear();
+////////////////////////
+// Challenge #3
+const Car = function (carName, speed) {
+  this.carName = carName;
+  this.speed = speed;
+};
+Car.prototype.accelerate = function () {
+  this.speed += 10;
+  console.log(`${this.carName} is going at ${this.speed}km/h`);
+};
+
+Car.prototype.brake = function () {
+  this.speed -= 5;
+  console.log(`${this.carName} is going at ${this.speed}km/h`);
+};
+
+const EV = function (carName, speed, charge) {
+  Car.call(this, carName, speed);
+  this.charge = charge;
+};
+EV.prototype = Object.create(Car.prototype);
+
+EV.prototype.chargeBattery = function (chargeTo) {
+  this.charge = chargeTo;
+};
+
+EV.prototype.accelerate = function () {
+  this.speed += 20;
+  this.charge--;
+  console.log(
+    `${this.carName} is going at ${this.speed}km/h, with a charge of ${this.charge}%`
+  );
+};
+
+const tesla = new EV('Tesla', 120, 23);
+console.log(tesla);
+tesla.accelerate();
+tesla.accelerate();
+tesla.brake();
+tesla.accelerate();
+tesla.chargeBattery(100);
