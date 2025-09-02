@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Building DOM for Banking system</title>
+
+    <style>
+      body {
+        margin: 0;
+        font-size: 20px;
+        height: 100vh;
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        flex-direction: column;
+      }
+      .container {
+        padding: 10px;
+      }
+      .loName,
+      .loPin {
+        margin: 20px 0;
+      }
+      .balance {
+        color: gold;
+      }
+      .input {
+        padding: 10px 5px;
+        color: blue;
+        font-size: 20px;
+      }
+      .btn-deposit,
+      .btn-withdraw {
+        width: 49%;
+        margin-top: 18px;
+        padding: 5px 10px;
+      }
+      .hidden {
+        display: none;
+      }
+      .inline {
+        display: inline-block;
+      }
+      .flex {
+        display: flex;
+        justify-content: space-between;
+      }
+      h3 {
+        margin: 10px 0;
+      }
+      button {
+        cursor: pointer !important;
+      }
+      .transaction {
+        display: flex;
+        justify-content: space-between;
+      }
+      .transaction > * {
+        display: inline-block;
+      }
+      .deposit {
+        color: rgb(0, 255, 0);
+      }
+      .withdraw {
+        color: red;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrapper">
+      <div class="entry">
+        <input type="text" class="loName" placeholder="Name" />
+        <input type="text" class="loPin" placeholder="Pin" />
+        <button class="loginBtn">Login</button>
+        <h3 class="new">New</h3>
+        <input type="text" class="newName inline" placeholder="Name only" />
+        <input type="text" class="newPin inline" placeholder="Pin only" />
+        <button class="create">Create Account</button>
+      </div>
+      <div class="container">
+        <h2>Account Details</h2>
+        <div class="row">
+          <h3 id="accName"></h3>
+          <p class="balance"></p>
+        </div>
+        <div class="row">
+          <input type="text" class="input" placeholder="amount" />
+        </div>
+        <div class="row-request">
+          <button class="btn-deposit">Deposit</button>
+          <button class="btn-withdraw">Withdraw</button>
+        </div>
+        <div class="row flex">
+          <h3 class="inline">Transactions</h3>
+          <h3 class="inline">type</h3>
+        </div>
+        <div class="row">
+          <div class="transaction">
+            <h3 class="money">300</h3>
+            <h3 class="type">Deposit</h3>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="private.js"></script>
+  </body>
+</html>

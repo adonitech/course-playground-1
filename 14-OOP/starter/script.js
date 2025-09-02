@@ -224,8 +224,8 @@ ford.accelerate();
 ford.brake();
 ford.speedUS = 50;
 console.log(ford);
-*/
 
+//////////////////////////////////////////////
 const Person = function (firstName, birthYear) {
   this.firstName = firstName;
   this.birthYear = birthYear;
@@ -304,3 +304,164 @@ tesla.accelerate();
 tesla.brake();
 tesla.accelerate();
 tesla.chargeBattery(100);
+
+//////////////////////////////////////////
+class PersonCl {
+  constructor(fulName, birthYear) {
+    this.fullName = fulName;
+    this.birthYear = birthYear;
+  }
+
+  // Methods will be added to .prototype property (Instances methods)
+  calcAge() {
+    console.log(2037 - this.birthYear);
+  }
+
+  greet() {
+    console.log(`Hey ${this.fullName}`);
+  }
+
+  get age() {
+    return 2037 - this.birthYear;
+  }
+
+  // Set a property that arlready exist
+  set fullName(name) {
+    if (name.includes(' ')) this._fullName = name;
+    else console.log('not valid');
+  }
+
+  get fullName() {
+    return this._fullName;
+  }
+
+  static hey() {
+    console.log('hey there');
+  }
+}
+
+class StudentCl extends PersonCl {
+  constructor(fullName, birthYear, course) {
+    // Always needs to happen first!
+    super(fullName, birthYear);
+    this.course = course;
+  }
+
+  introduce() {
+    console.log(`My name is ${this.fullName}`);
+  }
+  calcAge() {
+    console.log(`I'm ${2037 - this.birthYear} years old`);
+  }
+}
+
+// const martha = new StudentCl('Martha jones', 2011);
+const martha = new StudentCl('Martha jones', 2011, 'Computer Science');
+console.log(martha);
+martha.introduce();
+martha.calcAge();
+
+const PersonProto = {
+  calcAge() {
+    console.log(2037 - this.birthYear);
+  },
+  init(firstName, birthYear) {
+    this.firstName = firstName;
+    this.birthYear = birthYear;
+  },
+};
+
+const steven = Object.create(PersonProto);
+steven.init('Steven', 1990);
+steven.calcAge();
+console.log(steven);
+
+const StudentProto = Object.create(PersonProto);
+StudentProto.init = function (firstName, birthYear, course) {
+  PersonProto.init.call(this, firstName, birthYear);
+  this.course = course;
+};
+
+StudentProto.introduce = function () {
+  console.log(`My name is ${this.firstName} and I study ${this.course}`);
+};
+
+const jayStudent = Object.create(StudentProto);
+jayStudent.init('Jay', 1999, 'Medical Science');
+console.log(jayStudent);
+// console.log(jayStudent instanceof StudentProto.__proto__);
+// console.log(steven instanceof PersonProto);
+
+console.log(Object.getPrototypeOf(jayStudent) === StudentProto); // true
+console.log(jayStudent.__proto__ === StudentProto); // true
+*/
+
+class Account {
+  // 1) Public fields (instances) not in prototype
+  locale = navigator.language;
+
+  // 2) Private fields
+  #movements = [];
+  #pin;
+
+  // fields can't define in constructor READ READ READ
+  constructor(owner, currency, pin) {
+    this.owner = owner;
+    this.currency = currency;
+    this.#pin = pin;
+    // Protected property
+    // this._movements = [];
+    // this.locale = navigator.language;
+
+    console.log(`Thanks for opening an account, ${owner}`);
+  }
+
+  // 3) Public methods
+  // Public interface
+  // This methods will be added to Prototype
+  getMovements() {
+    return this.#movements;
+  }
+  deposit(val) {
+    this.#movements.push(val);
+    return this;
+  }
+  withdraw(val) {
+    this.deposit(-val);
+    return this;
+  }
+
+  requestLoan(val) {
+    if (this._approveLoan(val)) {
+      this.deposit(val);
+      console.log('Loan approved');
+    }
+    return this;
+  }
+
+  // 4) Private methods
+  // #approveLoan(val) {
+  _approveLoan(val) {
+    return true;
+  }
+}
+
+const acc1 = new Account('Adoni', 'ETB', 2719);
+
+// acc1.movements.push(250);
+// acc1.movements.push(-140);
+// acc1._approveLoan(1000);
+
+acc1.deposit(250);
+acc1.withdraw(140);
+acc1.requestLoan(1000);
+console.log(acc1.getMovements());
+console.log(acc1);
+
+// console.log(acc1.#movements);
+// console.log(acc1.pin);
+// console.log(acc1.#approveLoan(100));
+
+// Chaining
+acc1.deposit(300).deposit(500).withdraw(35).requestLoan(25000).withdraw(20000);
+console.log(acc1.getMovements());
