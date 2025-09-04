@@ -10,3 +10,13 @@ const countriesContainer = document.querySelector('.countries');
 // https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}
 
 ///////////////////////////////////////
+const request = new XMLHttpRequest();
+request.open('GET', 'https://restcountries.com/v2/name/portugal');
+request.send();
+
+request.addEventListener('load', function () {
+  console.log(this.responseText);
+
+  const [data] = JSON.parse(this.responseText);
+  console.log(data);
+});
