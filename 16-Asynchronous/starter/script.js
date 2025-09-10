@@ -167,8 +167,8 @@ const getCountryAndNeighbour = function (country) {
 // getCountryAndNeighbour('germany');
 getCountryAndNeighbour('usa');
 // getCountryAndNeighbour('portugal');
-*/
 
+////////////////////////////////////////////////////////
 // const request = new XMLHttpRequest();
 //   request.open('GET', `https://restcountries.com/v2/name/${country}`);
 //   request.send();
@@ -189,27 +189,33 @@ const getJSON = function (url, errorMsg = 'Something went wrong') {
 //   fetch(`https://restcountries.com/v2/name/${country}`)
 //     .then(response => {
 //       console.log(response);
-
-//       if (!response.ok) throw new Error(`Country not found ${response.status}`);
+//       // throw will eventually terminate the current function like return
+//       if (!response.ok)
+//         throw new Error(`Country not found (${response.status})`);
 
 //       return response.json();
 //     })
 //     .then(([data]) => {
 //       renderCountry(data);
 
-//       const neighbour = data.borders[0];
-//       // const neighbour = 'hshfhdsfh';
+//       // const neighbour = data.borders[0];
+//       const neighbour = 'hshfhdsfh';
 
 //       if (!neighbour) return;
 
 //       // Country 2
 //       return fetch(`https://restcountries.com/v3.1/alpha/${neighbour}`);
 //     })
-//     .then(response => response.json())
+//     .then(response => {
+//       if (!response.ok)
+//         throw new Error(`Country not found (${response.status})`);
+
+//       return response.json();
+//     })
 //     .then(([data]) => renderCountry(data, 'neighbour'))
 //     .catch(err => {
 //       console.error(err);
-//       renderError(`Something went wrong j ${err.message}`);
+//       renderError(`Something went wrong, ${err.message}. Try again!`);
 //     })
 //     .finally(() => {
 //       countriesContainer.style.opacity = 1;
@@ -218,17 +224,12 @@ const getJSON = function (url, errorMsg = 'Something went wrong') {
 
 const getCountryData2 = function (country) {
   // Country 1
-  getJSON(
-    `https://restcountries.com/v3.1/alpha/${country}`,
-    'Country not found'
-  )
+  getJSON(`https://restcountries.com/v2/name/${country}`, 'Country not found')
     .then(([data]) => {
       renderCountry(data);
 
-      const neighbour = data.borders[0];
-      // const neighbour = 'hshfhdsfh';
-
-      if (!neighbour) return;
+      const neighbour = data?.border && data?.border[0];
+      if (!neighbour) throw new Error('No neighbour found!');
 
       // Country 2
       return getJSON(
@@ -239,7 +240,7 @@ const getCountryData2 = function (country) {
     .then(([data]) => renderCountry(data, 'neighbour'))
     .catch(err => {
       console.error(err);
-      renderError(`Something went wrong j ${err.message}`);
+      renderError(`Something went wrong, ${err.message}. Try again!`);
     })
     .finally(() => {
       countriesContainer.style.opacity = 1;
@@ -249,4 +250,50 @@ const getCountryData2 = function (country) {
 btn.addEventListener('click', function () {
   getCountryData2('portugal');
 });
-// getCountryData2('hjdfjsdjafh');
+getCountryData2('australia');
+*/
+
+const whereAmI = function (lat, lng) {
+  fetch(
+    `https://nominatim.openstreetmap.org/reverse?format=geojson&lat=${lat}&lon=${lng}
+    `
+  )
+    .then(response => {
+      if (!response.ok) throw new Error('Can\t find your place');
+
+      return response.json();
+    })
+    .then(data => {
+      if (data.error) throw new Error(`${data.error}`);
+
+      const country = data?.features[0]?.properties.address?.country;
+      console.log(
+        `You are in ${
+          data?.features[0]?.properties.address?.city || 'Unidentified place'
+        }, ${data?.features[0]?.properties.address.country}`
+      );
+
+      return fetch(`https://restcountries.com/v2/name/${country}`);
+    })
+    .then(res => res.json())
+    .then(data => {
+      return renderCountry(data[0]);
+    })
+    .catch(err => console.error(`Something went wrong, ${err.message}`))
+    .finally(_ => (countriesContainer.style.opacity = 1));
+};
+// btn.addEventListener('click', function () {
+//   whereAmI(52.508, 13.381);
+//   whereAmI(-33.908, 18.381);
+//   whereAmI(49.037, 72.381);
+// });
+let lat, lng;
+
+navigator.geolocation.getCurrentPosition(function (position) {
+  lat = position.coords.latitude;
+  lng = position.coords.longitude;
+});
+
+btn.addEventListener('click', function () {
+  whereAmI(lat, lng);
+});
