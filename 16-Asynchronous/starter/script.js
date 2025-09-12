@@ -251,8 +251,7 @@ btn.addEventListener('click', function () {
   getCountryData2('portugal');
 });
 getCountryData2('australia');
-*/
-
+//////////////////////////////////////////
 const whereAmI = function (lat, lng) {
   fetch(
     `https://nominatim.openstreetmap.org/reverse?format=geojson&lat=${lat}&lon=${lng}
@@ -297,3 +296,202 @@ navigator.geolocation.getCurrentPosition(function (position) {
 btn.addEventListener('click', function () {
   whereAmI(lat, lng);
 });
+
+///////////////////////////////////////////////////////////
+// READ READ READ the function passed is called executor function, and takes two arguments
+const lotteryPromise = new Promise(function (resolve, reject) {
+  console.log('Lottery draw is happening');
+  setTimeout(() => {
+    if (Math.random() >= 0.5) {
+      // in resolve function we pass the resolved value or expected value so that later it will be consumed with the then method
+      resolve('You WIN');
+    } else {
+      // in this one we will pass an error message so later we can use it in catch handler
+      reject(new Error('You lost your money'));
+    }
+  }, 2000);
+});
+
+lotteryPromise.then(res => console.log(res)).catch(err => console.error(err));
+
+// Promisifying means to convert callback based asychronous behavior to PROMISE based READ READ READ
+// Promisifying setTimeout
+const wait = function (seconds) {
+  return new Promise(function (resolve) {
+    setTimeout(resolve, seconds * 1000);
+  });
+};
+wait(2)
+  .then(() => {
+    console.log('1 second passed');
+    return wait(1);
+  })
+  .then(() => {
+    console.log('2 seconds passed');
+    return wait(1);
+  })
+  .then(() => {
+    console.log('3 seconds passed');
+    return wait(1);
+  })
+  .then(() => {
+    console.log('4 seconds passed');
+  });
+
+// setTimeout(() => {
+//   console.log('1 second passed');
+//   setTimeout(() => {
+//     console.log('2 seconds passed');
+//     setTimeout(() => {
+//       console.log('3 second passed');
+//       setTimeout(() => {
+//         console.log('4 second passed');
+//       }, 1000);
+//     }, 1000);
+//   }, 1000);
+// }, 1000);
+
+btn.addEventListener('click', function () {
+  window.location.reload();
+});
+
+// READ READ READ Creates a resolved or rejected promise right away
+Promise.resolve('abc').then(x => console.log(x));
+Promise.reject(new Error('Problem')).catch(x => console.error(x));
+*/
+
+/*
+///////////////////////////////////////////////
+const getPosition = function () {
+  return new Promise(function (resolve, reject) {
+    // navigator.geolocation.getCurrentPosition(
+    //   position => resolve(position),
+    //   err => reject(err.message)
+    // );
+    navigator.geolocation.getCurrentPosition(resolve, reject);
+  });
+};
+
+const whereAmI = function (lat, lng) {
+  fetch(
+    `https://nominatim.openstreetmap.org/reverse?format=geojson&lat=${lat}&lon=${lng}
+    `
+  )
+    .then(response => {
+      if (!response.ok) throw new Error('Can\t find your place');
+
+      return response.json();
+    })
+    .then(data => {
+      if (data.error) throw new Error(`${data.error}`);
+
+      const country = data?.features[0]?.properties.address?.country;
+      console.log(
+        `You are in ${
+          data?.features[0]?.properties.address?.city || 'Unidentified place'
+        }, ${data?.features[0]?.properties.address.country}`
+      );
+
+      return fetch(`https://restcountries.com/v2/name/${country}`);
+    })
+    .then(res => res.json())
+    .then(data => {
+      return renderCountry(data[0]);
+    })
+    .catch(err => console.error(`Something went wrong, ${err.message}`))
+    .finally(_ => (countriesContainer.style.opacity = 1));
+};
+
+getPosition().then(pos => {
+  whereAmI(pos.coords.latitude, pos.coords.longitude);
+});
+///////////////////////////////////////////////////
+const wait = function (seconds) {
+  return new Promise(function (resolve) {
+    setTimeout(resolve, seconds * 1000);
+  });
+};
+
+const cont = document.querySelector('.images');
+
+const createImage = function (imgPath) {
+  return new Promise(function (resolve, reject) {
+    const img = document.createElement('img');
+    img.src = imgPath;
+
+    img.addEventListener('load', function () {
+      cont.append(img);
+      resolve(img);
+    });
+    img.addEventListener('error', function () {
+      reject(new Error('Image not found'));
+    });
+  });
+};
+
+createImage('img/img-1.jpg')
+  .then(img => {
+    console.log(img + ' loading');
+    return wait(6);
+  })
+  .then(() => {
+    cont.replaceChildren();
+    return createImage('img/img-2.jpg');
+  })
+  .then(img => {
+    console.log(img + ' loading');
+    return wait(6);
+  })
+  .then(() => cont.replaceChildren())
+  .catch(err => console.error(err));
+
+// function testImage(url) {
+//   var tester = new Image();
+//   tester.addEventListener('load', imageFound);
+//   tester.addEventListener('error', imageNotFound);
+//   tester.src = url;
+// }
+
+// function imageFound() {
+//   alert('That image is found and loaded');
+// }
+
+// function imageNotFound() {
+//   alert('That image was not found.');
+// }
+
+// testImage('http://foo.com/bar.jpg');
+
+  */
+const getPosition = function () {
+  return new Promise(function (resolve, reject) {
+    // navigator.geolocation.getCurrentPosition(
+    //   position => resolve(position),
+    //   err => reject(err.message)
+    // );
+    navigator.geolocation.getCurrentPosition(resolve, reject);
+  });
+};
+
+let response;
+const whereAmIasync = async function () {
+  // fetch(`https://restcountries.com/v2/name/${country}`).then(res => console.log(res))
+  const pos = await getPosition();
+  const { latitude: lat, longitude: lng } = pos.coords;
+  const just = await fetch(
+    `https://nominatim.openstreetmap.org/reverse?format=geojson&lat=${lat}&lon=${lng}`
+  );
+  const dat = await just.json();
+  const country = dat.features[0].properties.address.country;
+
+  const res = await fetch(`https://restcountries.com/v2/name/${country}`);
+  const [data] = await res.json();
+  response = data;
+};
+whereAmIasync();
+
+btn.addEventListener('click', function () {
+  renderCountry(response);
+  countriesContainer.style.opacity = 1;
+});
+console.log('First');
