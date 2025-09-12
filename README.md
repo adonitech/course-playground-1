@@ -1,1 +1,1 @@
-# Here it goes me Learning Javascript
+# Here it goes, me myself Learning Javascript
