@@ -37,6 +37,13 @@ const renderError = function (msg) {
   countriesContainer.style.opacity = 1;
 };
 
+const getJSON = function (url, errorMsg = 'Something went wrong') {
+  return fetch(url).then(response => {
+    if (!response.ok) throw new Error(`${errorMsg} ${response.status}`);
+
+    return response.json();
+  });
+};
 /*
 countriesContainer.style.width = '100%';
 countriesContainer.style.flexWrap = 'wrap';
@@ -176,13 +183,7 @@ getCountryAndNeighbour('usa');
 // const request2 = fetch('https://restcountries.com/v2/name/portugal');
 // console.log(request2);
 
-const getJSON = function (url, errorMsg = 'Something went wrong') {
-  return fetch(url).then(response => {
-    if (!response.ok) throw new Error(`${errorMsg} ${response.status}`);
 
-    return response.json();
-  });
-};
 
 // const getCountryData2 = function (country) {
 //   // Country 1
@@ -463,6 +464,7 @@ createImage('img/img-1.jpg')
 // testImage('http://foo.com/bar.jpg');
 
   */
+/*
 const getPosition = function () {
   return new Promise(function (resolve, reject) {
     // navigator.geolocation.getCurrentPosition(
@@ -489,24 +491,113 @@ const whereAmIasync = async function () {
     const res = await fetch(`https://restcountries.com/v2/name/${country}`);
     if (!res.ok) throw new Error('Problem getting country');
     const [data] = await res.json();
-    response = data;
+    return data;
   } catch (error) {
     console.error(error);
     renderError(`someething went wrong ${error.message}`);
+
+    // reject promise returned from async function
+    throw error;
+    // so that we can catch it in catch handler
   }
 };
-whereAmIasync();
+const resp = whereAmIasync();
 
 btn.addEventListener('click', function () {
-  console.log(response);
-  renderCountry(response);
-  countriesContainer.style.opacity = 1;
+  // resp
+  //   .then(res => {
+  //     console.log(res);
+  //     renderCountry(res);
+  //     countriesContainer.style.opacity = 1;
+  //   })
+  //   .catch(err => console.error(err))
+  //   .finally(_ => console.log('3rd message'));
+
+  (async function () {
+    try {
+      const res = await resp;
+      console.log(res);
+      renderCountry(res);
+      countriesContainer.style.opacity = 1;
+    } catch (err) {
+      console.error(err);
+    }
+    console.log('3rd message');
+  })();
 });
 console.log('First');
 
-// try {
-//   const s = 1;
-//   s = 2;
-// } catch (err) {
-//   alert(err.message);
-// }
+*/
+
+// const get3Countries = async function (c1, c2, c3) {
+//   try {
+//     // const [data1] = await getJSON(`https://restcountries.com/v2/name/${c1}`);
+//     // const [data2] = await getJSON(`https://restcountries.com/v2/name/${c2}`);
+//     // const [data3] = await getJSON(`https://restcountries.com/v2/name/${c3}`);
+//     // console.log([data1.capital, data2.capital, data3.capital]);
+
+//  promise.all short circuit as soon as one promise rejects READ READ READ
+//     const data = await Promise.all([
+//       getJSON(`https://restcountries.com/v2/name/${c1}`),
+//       getJSON(`https://restcountries.com/v2/name/${c2}`),
+//       getJSON(`https://restcountries.com/v2/name/${c3}`),
+//     ]);
+//     console.log(data.map((val, i, arr) => val[0].capital));
+//   } catch (err) {
+//     console.error(err);
+//   }
+// };
+// get3Countries('portugal', 'ethiopia', 'sudan');
+
+const timeout = function (sec) {
+  return new Promise(function (_, reject) {
+    setTimeout(() => {
+      reject(new Error('Request took too long'));
+    }, sec * 1000);
+  });
+};
+
+// READ READ this for slow internet connection, remember? give them 10secs else make them request again
+Promise.race([
+  getJSON(`https://restcountries.com/v2/name/ethiopia`),
+  timeout(10),
+])
+  .then(res => console.log(res))
+  .catch(err => console.error(err.message));
+
+// READ READ READ Promise.allSettled never short circuits and takes an array of promises and return an array of all the settled promises. settled means
+Promise.allSettled([
+  Promise.resolve('success'),
+  Promise.resolve('success'),
+  Promise.reject('error'),
+]).then(res => console.log(res));
+// Output
+[
+  {
+    status: 'fulfilled',
+    value: 'success',
+  },
+  {
+    status: 'fulfilled',
+    value: 'success',
+  },
+  {
+    status: 'rejected',
+    reason: 'error',
+  },
+];
+
+Promise.all([
+  Promise.resolve('success'),
+  Promise.resolve('success'),
+  Promise.reject('errorMSg'),
+]).then(res => console.log(res));
+// Output Uncaught (in promise) errorMSg
+
+// Promise.any [ES2021]  READ READ READ
+// result of .any is always gonna be a fulfilled promise meaning rejected promises are ignored unless all of them reject
+Promise.any([
+  Promise.resolve('success'),
+  Promise.resolve('success'),
+  Promise.reject('errorMSg'),
+]).then(res => console.log(res));
